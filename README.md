@@ -11,74 +11,21 @@
 
 ## ⚡ 一键安装（复制给你的 Agent）
 
-> 把下面这段话直接发给任何 AI Agent（Hermes、Claude Desktop、Cursor、Windsurf、Cline 等），它会自动帮你完成安装配置。
+> 把下面这段话直接发给任何 AI Agent，它会自动完成安装配置。
 
 ```
-请帮我安装 paddleocr-mcp，这是一个本地 OCR MCP 服务，支持：
-- PP-OCRv6：快速文字提取（截图、发票、照片）
-- VL-1.6：文档结构解析（PDF、表格、复杂布局）
-- 自动路由：根据文件类型自动选最佳模型
-- GPU 自动检测：有 CUDA 就用 GPU，没有就用 CPU
+请帮我安装 paddleocr-mcp（https://github.com/Nicvank/paddleocr-mcp），
+这是一个本地 OCR MCP 服务，支持 PP-OCRv6（快速文字提取）和 VL-1.6（文档结构解析），
+自动路由，自动检测 GPU/CPU。
 
-请按以下步骤操作：
+安装步骤：
+1. git clone https://github.com/Nicvank/paddleocr-mcp.git ~/paddleocr-mcp
+2. cd ~/paddleocr-mcp && python -m venv .venv && .venv/bin/pip install -e .
+3. 把 MCP 服务器配置添加到我的 Agent 客户端（command: ~/paddleocr-mcp/.venv/bin/python, args: ["~/paddleocr-mcp/paddleocr_mcp_server.py"]）
+4. 读一下 ~/paddleocr-mcp/skill/SKILL.md，按你平台的方式加载它（Hermes 放 skills 目录，Cursor 放 .cursorrules，Claude 放项目知识等）
+5. 重启后发一张图片给我测试："提取这张图片的文字"
 
-1. 先确认环境
-   - 需要 Python 3.10+
-   - 需要 git
-   - 如果有 uv 包管理器优先用它，没有就用 pip
-
-2. 克隆仓库到用户目录下
-   git clone https://github.com/Nicvank/paddleocr-mcp.git ~/paddleocr-mcp
-
-3. 创建虚拟环境并安装依赖
-   cd ~/paddleocr-mcp
-   python -m venv .venv
-   # 优先用 uv 安装（更快），没有 uv 就用 pip
-   # uv pip install -e .
-   # 或
-   .venv/bin/pip install -e .
-
-4. 验证安装
-   ~/paddleocr-mcp/.venv/bin/python -c "from paddleocr_mcp_server import server; print('OK')"
-
-5. 配置 MCP 连接
-   你的 MCP 客户端配置文件中添加以下服务器配置：
-   - Hermes: ~/.hermes/profiles/<profile>/config.yaml 的 mcp_servers 下
-   - Claude Desktop: claude_desktop_config.json 的 mcpServers 下
-   - Cursor/Cline/Windsurf: MCP 设置页面
-
-   配置内容：
-   {
-     "paddleocr": {
-       "command": "<仓库路径>/.venv/bin/python",
-       "args": ["<仓库路径>/paddleocr_mcp_server.py"],
-       "timeout": 300,
-       "connect_timeout": 120
-     }
-   }
-
-   其中 <仓库路径> 替换为实际路径（通常是 ~/paddleocr-mcp）
-
-6. 安装 Agent Skill（让你更聪明地使用 OCR）
-   仓库里有一个 skill/SKILL.md 文件，是给 Agent 看的使用指南，
-   包含：什么时候该用 OCR、用哪个模型、怎么处理结果、常见错误。
-
-   请根据你所在的平台放到对应位置：
-   - Hermes:     复制到 ~/.hermes/skills/paddleocr-mcp/SKILL.md
-   - Claude Desktop: 作为项目知识文件，或添加到系统提示词中
-   - Cursor:     复制为项目根目录 .cursorrules 的一部分
-   - Cline:      复制为项目根目录 .clinerules 的一部分
-   - Windsurf:   复制为项目根目录 .windsurfrules 的一部分
-   - 其他 Agent: 读取 skill/SKILL.md 内容，作为上下文注入
-
-   不确定你的平台怎么做？直接把 skill/SKILL.md 的内容读出来，
-   作为对话上下文告诉我即可。
-
-7. 重启你的 Agent / MCP 客户端，让配置生效
-
-8. 验证可用：发一张图片给 Agent，说"提取这张图片的文字"
-
-如果任何步骤失败，请报告错误并尝试修复。完成后告诉我安装结果。
+如果任何步骤失败，报告错误并修复。完成后告诉我结果。
 ```
 
 ---
