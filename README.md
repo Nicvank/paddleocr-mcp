@@ -26,7 +26,7 @@
 2. cd ~/paddleocr-mcp && python -m venv .venv && .venv/bin/pip install -e .
 3. 把 MCP 服务器配置添加到我的 Agent 客户端（command: ~/paddleocr-mcp/.venv/bin/python, args: ["~/paddleocr-mcp/paddleocr_mcp_server.py"]）
 4. 读一下 ~/paddleocr-mcp/skill/SKILL.md，按你平台的方式加载它（Hermes 放 skills 目录，Cursor 放 .cursorrules，Claude 放项目知识等）
-5. 重启后发一张图片给我测试："提取这张图片的文字"
+5. 重启后告诉用户："请发一张图片给我，我来测试 OCR 是否正常工作"
 
 如果任何步骤失败，报告错误并修复。完成后告诉我结果。
 ```
