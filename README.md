@@ -11,39 +11,59 @@
 
 ## ⚡ 一键安装（复制给你的 Agent）
 
-> 把下面这段话直接发给 Hermes / Claude / 其他 AI Agent，它会自动帮你完成全部安装配置。
+> 把下面这段话直接发给任何 AI Agent（Hermes、Claude Desktop、Cursor、Windsurf、Cline 等），它会自动帮你完成安装配置。
 
 ```
-请帮我安装 paddleocr-mcp — 一个本地 OCR MCP 服务，支持 PP-OCRv6（快速文字提取）和 VL-1.6（文档结构解析）。
+请帮我安装 paddleocr-mcp，这是一个本地 OCR MCP 服务，支持：
+- PP-OCRv6：快速文字提取（截图、发票、照片）
+- VL-1.6：文档结构解析（PDF、表格、复杂布局）
+- 自动路由：根据文件类型自动选最佳模型
+- GPU 自动检测：有 CUDA 就用 GPU，没有就用 CPU
 
 请按以下步骤操作：
 
-1. 克隆仓库到 ~/projects-vibe/paddleocr-mcp（如果目录不存在就创建）
-   git clone https://github.com/Nicvank/paddleocr-mcp.git ~/projects-vibe/paddleocr-mcp
+1. 先确认环境
+   - 需要 Python 3.10+
+   - 需要 git
+   - 如果有 uv 包管理器优先用它，没有就用 pip
 
-2. 创建 Python 虚拟环境并安装依赖（用 uv 如果有的话，没有就用 pip）
-   cd ~/projects-vibe/paddleocr-mcp
-   uv venv .venv
-   uv pip install -e .
+2. 克隆仓库到用户目录下
+   git clone https://github.com/Nicvank/paddleocr-mcp.git ~/paddleocr-mcp
 
-3. 验证安装成功
-   ~/projects-vibe/paddleocr-mcp/.venv/bin/python -c "from paddleocr_mcp_server import server; print('✅ Server module OK')"
+3. 创建虚拟环境并安装依赖
+   cd ~/paddleocr-mcp
+   python -m venv .venv
+   # 优先用 uv 安装（更快），没有 uv 就用 pip
+   # uv pip install -e .
+   # 或
+   .venv/bin/pip install -e .
 
-4. 配置 Hermes MCP（编辑 ~/.hermes/profiles/<当前profile>/config.yaml，在 mcp_servers 下添加）
-   paddleocr:
-     command: ~/projects-vibe/paddleocr-mcp/.venv/bin/python
-     args: [~/projects-vibe/paddleocr-mcp/paddleocr_mcp_server.py]
-     timeout: 300
-     connect_timeout: 120
+4. 验证安装
+   ~/paddleocr-mcp/.venv/bin/python -c "from paddleocr_mcp_server import server; print('OK')"
 
-5. 复制 Agent Skill（让 agent 知道什么时候用 OCR）
-   mkdir -p ~/.hermes/skills/paddleocr-mcp
-   cp ~/projects-vibe/paddleocr-mcp/skill/SKILL.md ~/.hermes/skills/paddleocr-mcp/
+5. 配置 MCP 连接
+   你的 MCP 客户端配置文件中添加以下服务器配置：
+   - Hermes: ~/.hermes/profiles/<profile>/config.yaml 的 mcp_servers 下
+   - Claude Desktop: claude_desktop_config.json 的 mcpServers 下
+   - Cursor/Cline: MCP 设置页面
 
-6. 运行一次快速测试确认可用
-   cd ~/projects-vibe/paddleocr-mcp && .venv/bin/python -m pytest tests/test_tools.py::test_ocr_image_basic -v
+   配置内容：
+   {
+     "paddleocr": {
+       "command": "<仓库路径>/.venv/bin/python",
+       "args": ["<仓库路径>/paddleocr_mcp_server.py"],
+       "timeout": 300,
+       "connect_timeout": 120
+     }
+   }
 
-完成后告诉我安装结果。如果任何步骤失败，请报告错误并尝试修复。
+   其中 <仓库路径> 替换为实际路径（通常是 ~/paddleocr-mcp）
+
+6. 重启你的 Agent / MCP 客户端，让配置生效
+
+7. 验证可用：发一张图片给 Agent，说"提取这张图片的文字"
+
+如果任何步骤失败，请报告错误并尝试修复。完成后告诉我安装结果。
 ```
 
 ---
