@@ -18,8 +18,11 @@
 这是一个本地 OCR MCP 服务，支持 PP-OCRv6（快速文字提取）和 VL-1.6（文档结构解析），
 自动路由，自动检测 GPU/CPU。
 
+注意：需要 Python 3.10~3.12，不支持 3.13+。首次安装需下载 ~300MB 依赖，请耐心等待。
+
 安装步骤：
 1. git clone https://github.com/Nicvank/paddleocr-mcp.git ~/paddleocr-mcp
+   （如果 clone 失败，试试 ghproxy 镜像：git clone https://ghproxy.net/https://github.com/Nicvank/paddleocr-mcp.git ~/paddleocr-mcp）
 2. cd ~/paddleocr-mcp && python -m venv .venv && .venv/bin/pip install -e .
 3. 把 MCP 服务器配置添加到我的 Agent 客户端（command: ~/paddleocr-mcp/.venv/bin/python, args: ["~/paddleocr-mcp/paddleocr_mcp_server.py"]）
 4. 读一下 ~/paddleocr-mcp/skill/SKILL.md，按你平台的方式加载它（Hermes 放 skills 目录，Cursor 放 .cursorrules，Claude 放项目知识等）
@@ -55,7 +58,7 @@
 
 ### 前置条件
 
-- Python 3.10+
+- Python 3.10 ~ 3.12（不支持 3.13+）
 - PaddlePaddle 3.2+（CPU 或 GPU 版）
 - PaddleOCR 3.7+
 
@@ -66,11 +69,15 @@
 git clone https://github.com/Nicvank/paddleocr-mcp.git
 cd paddleocr-mcp
 
-# 2. 安装依赖（使用 uv 推荐）
-uv pip install -e .
+# 2. 创建虚拟环境并安装依赖
+python -m venv .venv
+.venv/bin/pip install -e .
 
-# 或者手动安装
-pip install mcp paddleocr paddlepaddle pillow pyyaml
+# ⚠️ 首次安装需下载 ~300MB 依赖（paddlepaddle 195MB + opencv 69MB），
+#    网络慢请耐心等待，或使用 uv 加速：uv pip install -e .
+
+# 🇨🇳 中国大陆用户如 git clone 失败，可尝试镜像：
+# git clone https://ghproxy.net/https://github.com/Nicvank/paddleocr-mcp.git
 ```
 
 ### GPU 支持（可选）
@@ -93,16 +100,24 @@ python paddleocr_mcp_server.py
 
 ### Hermes Agent 集成
 
-在 `~/.hermes/profiles/<your-profile>/config.yaml` 添加：
+#### Gateway 模式（systemd 守护进程）
+
+在 **全局配置** `~/.hermes/config.yaml` 添加：
 
 ```yaml
 mcp_servers:
   paddleocr:
-    command: python
-    args: [/path/to/paddleocr_mcp_server.py]
+    command: /path/to/paddleocr-mcp/.venv/bin/python
+    args: [/path/to/paddleocr-mcp/paddleocr_mcp_server.py]
     timeout: 300
     connect_timeout: 120
 ```
+
+> ⚠️ Gateway 模式下 MCP 配置读自 `$HERMES_HOME/config.yaml`（即 `~/.hermes/config.yaml`），不是 profile 级别的。
+
+#### CLI 模式
+
+在 `~/.hermes/profiles/<your-profile>/config.yaml` 添加（同上配置）。
 
 重启 Hermes 后自动可用。
 
@@ -137,8 +152,11 @@ Skill 是一份结构化文档，告诉 Agent：
 ### 安装到 Hermes
 
 ```bash
-# 复制 skill 到 Hermes skills 目录
+# Gateway 模式：复制到全局 skills 目录
 cp -r skill/ ~/.hermes/skills/paddleocr-mcp/
+
+# CLI 模式：复制到 profile 的 skills 目录
+cp -r skill/ ~/.hermes/profiles/<your-profile>/skills/media/paddleocr-mcp/
 
 # 或者创建符号链接（推荐，方便更新）
 ln -s /path/to/paddleocr-mcp/skill ~/.hermes/skills/paddleocr-mcp

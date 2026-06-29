@@ -3,7 +3,7 @@ name = "paddleocr-mcp-server"
 version = "1.0.0"
 description = "MCP server for PaddleOCR — PP-OCRv6 (fast) + VL-1.6 (document parsing) with auto-routing and GPU auto-detection"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.10, <3.13"
 license = {text = "MIT"}
 authors = [
     {name = "Nicvank"},

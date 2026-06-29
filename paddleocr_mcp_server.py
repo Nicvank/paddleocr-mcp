@@ -462,6 +462,12 @@ async def _main():
 
 
 def main():
+    # Startup status — goes to stderr so MCP clients can see it
+    sys.stderr.write(f"[paddleocr-mcp] Starting v1.0.0...\n")
+    sys.stderr.write(f"[paddleocr-mcp] Device: {DEVICE}\n")
+    sys.stderr.write(f"[paddleocr-mcp] Tools: ocr_image, parse_document, smart_ocr\n")
+    sys.stderr.write(f"[paddleocr-mcp] Ready.\n")
+    sys.stderr.flush()
     asyncio.run(_main())
 
 
