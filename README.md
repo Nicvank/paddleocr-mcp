@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![PaddleOCR: Apache 2.0](https://img.shields.io/badge/PaddleOCR-Apache%202.0-blue.svg)](https://github.com/PaddlePaddle/PaddleOCR/blob/main/LICENSE)
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![Python 3.10-3.12](https://img.shields.io/badge/python-3.10--3.12-blue.svg)](https://www.python.org/downloads/)
 [![MCP Compatible](https://img.shields.io/badge/MCP-Compatible-green.svg)](https://modelcontextprotocol.io)
 
 本地运行的 PaddleOCR MCP Server，支持双模型 + 自动路由 + GPU 自动检测。
@@ -18,15 +18,18 @@
 这是一个本地 OCR MCP 服务，支持 PP-OCRv6（快速文字提取）和 VL-1.6（文档结构解析），
 自动路由，自动检测 GPU/CPU。
 
-注意：需要 Python 3.10~3.12，不支持 3.13+。首次安装需下载 ~300MB 依赖，请耐心等待。
-
 安装步骤：
 1. git clone https://github.com/Nicvank/paddleocr-mcp.git ~/paddleocr-mcp
    （如果 clone 失败，试试 ghproxy 镜像：git clone https://ghproxy.net/https://github.com/Nicvank/paddleocr-mcp.git ~/paddleocr-mcp）
-2. cd ~/paddleocr-mcp && python -m venv .venv && .venv/bin/pip install -e .
-3. 把 MCP 服务器配置添加到我的 Agent 客户端（command: ~/paddleocr-mcp/.venv/bin/python, args: ["~/paddleocr-mcp/paddleocr_mcp_server.py"]）
-4. 读一下 ~/paddleocr-mcp/skill/SKILL.md，按你平台的方式加载它（Hermes 放 skills 目录，Cursor 放 .cursorrules，Claude 放项目知识等）
-5. 重启后告诉用户："请发一张图片给我，我来测试 OCR 是否正常工作"
+2. 检查 Python 版本（需要 3.10-3.12，不支持 3.13+），如果不是则先安装 Python 3.12
+3. cd ~/paddleocr-mcp && python -m venv .venv && .venv/bin/pip install -e .
+   （首次安装需下载 ~300MB 依赖，请耐心等待）
+4. 把 MCP 服务器配置添加到我的 Agent 客户端：
+   command: ~/paddleocr-mcp/.venv/bin/python（必须用 venv 的 python，不要用系统 python）
+   args: ["~/paddleocr-mcp/paddleocr_mcp_server.py"]
+   timeout: 600（VL-1.6 在 CPU 上较慢，首次还需下载 ~300MB 模型）
+5. 读一下 ~/paddleocr-mcp/skill/SKILL.md，按你平台的方式加载它
+6. 重启后告诉用户："请发一张图片给我，我来测试 OCR 是否正常工作"
 
 如果任何步骤失败，报告错误并修复。完成后告诉我结果。
 ```
@@ -53,6 +56,8 @@
 **硬件推荐：**
 - **纯 CPU**：任何 x86_64 处理器即可运行，适合低频使用
 - **GPU 加速**：NVIDIA CUDA 显卡（GTX 1060 / P106 6GB 及以上），显存 ≥ 6GB，适合高频或实时场景
+
+> ⚠️ **首次使用 VL-1.6 时**会自动从 ModelScope 下载模型文件（~300MB），需额外等待 1-5 分钟。模型缓存在 `~/.paddlex/official_models/`，后续调用无需重复下载。
 
 ## 安装
 
@@ -109,7 +114,7 @@ mcp_servers:
   paddleocr:
     command: /path/to/paddleocr-mcp/.venv/bin/python
     args: [/path/to/paddleocr-mcp/paddleocr_mcp_server.py]
-    timeout: 300
+    timeout: 600
     connect_timeout: 120
 ```
 
