@@ -3,11 +3,50 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![PaddleOCR: Apache 2.0](https://img.shields.io/badge/PaddleOCR-Apache%202.0-blue.svg)](https://github.com/PaddlePaddle/PaddleOCR/blob/main/LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![MCP Compatible](https://img.shields.io/badge/MCP- Compatible-green.svg)](https://modelcontextprotocol.io)
+[![MCP Compatible](https://img.shields.io/badge/MCP-Compatible-green.svg)](https://modelcontextprotocol.io)
 
 本地运行的 PaddleOCR MCP Server，支持双模型 + 自动路由 + GPU 自动检测。
 
-## 功能特性
+---
+
+## ⚡ 一键安装（复制给你的 Agent）
+
+> 把下面这段话直接发给 Hermes / Claude / 其他 AI Agent，它会自动帮你完成全部安装配置。
+
+```
+请帮我安装 paddleocr-mcp — 一个本地 OCR MCP 服务，支持 PP-OCRv6（快速文字提取）和 VL-1.6（文档结构解析）。
+
+请按以下步骤操作：
+
+1. 克隆仓库到 ~/projects-vibe/paddleocr-mcp（如果目录不存在就创建）
+   git clone https://github.com/Nicvank/paddleocr-mcp.git ~/projects-vibe/paddleocr-mcp
+
+2. 创建 Python 虚拟环境并安装依赖（用 uv 如果有的话，没有就用 pip）
+   cd ~/projects-vibe/paddleocr-mcp
+   uv venv .venv
+   uv pip install -e .
+
+3. 验证安装成功
+   ~/projects-vibe/paddleocr-mcp/.venv/bin/python -c "from paddleocr_mcp_server import server; print('✅ Server module OK')"
+
+4. 配置 Hermes MCP（编辑 ~/.hermes/profiles/<当前profile>/config.yaml，在 mcp_servers 下添加）
+   paddleocr:
+     command: ~/projects-vibe/paddleocr-mcp/.venv/bin/python
+     args: [~/projects-vibe/paddleocr-mcp/paddleocr_mcp_server.py]
+     timeout: 300
+     connect_timeout: 120
+
+5. 复制 Agent Skill（让 agent 知道什么时候用 OCR）
+   mkdir -p ~/.hermes/skills/paddleocr-mcp
+   cp ~/projects-vibe/paddleocr-mcp/skill/SKILL.md ~/.hermes/skills/paddleocr-mcp/
+
+6. 运行一次快速测试确认可用
+   cd ~/projects-vibe/paddleocr-mcp && .venv/bin/python -m pytest tests/test_tools.py::test_ocr_image_basic -v
+
+完成后告诉我安装结果。如果任何步骤失败，请报告错误并尝试修复。
+```
+
+---
 
 | 特性 | 说明 |
 |------|------|
