@@ -45,7 +45,7 @@
    你的 MCP 客户端配置文件中添加以下服务器配置：
    - Hermes: ~/.hermes/profiles/<profile>/config.yaml 的 mcp_servers 下
    - Claude Desktop: claude_desktop_config.json 的 mcpServers 下
-   - Cursor/Cline: MCP 设置页面
+   - Cursor/Cline/Windsurf: MCP 设置页面
 
    配置内容：
    {
@@ -59,9 +59,24 @@
 
    其中 <仓库路径> 替换为实际路径（通常是 ~/paddleocr-mcp）
 
-6. 重启你的 Agent / MCP 客户端，让配置生效
+6. 安装 Agent Skill（让你更聪明地使用 OCR）
+   仓库里有一个 skill/SKILL.md 文件，是给 Agent 看的使用指南，
+   包含：什么时候该用 OCR、用哪个模型、怎么处理结果、常见错误。
 
-7. 验证可用：发一张图片给 Agent，说"提取这张图片的文字"
+   请根据你所在的平台放到对应位置：
+   - Hermes:     复制到 ~/.hermes/skills/paddleocr-mcp/SKILL.md
+   - Claude Desktop: 作为项目知识文件，或添加到系统提示词中
+   - Cursor:     复制为项目根目录 .cursorrules 的一部分
+   - Cline:      复制为项目根目录 .clinerules 的一部分
+   - Windsurf:   复制为项目根目录 .windsurfrules 的一部分
+   - 其他 Agent: 读取 skill/SKILL.md 内容，作为上下文注入
+
+   不确定你的平台怎么做？直接把 skill/SKILL.md 的内容读出来，
+   作为对话上下文告诉我即可。
+
+7. 重启你的 Agent / MCP 客户端，让配置生效
+
+8. 验证可用：发一张图片给 Agent，说"提取这张图片的文字"
 
 如果任何步骤失败，请报告错误并尝试修复。完成后告诉我安装结果。
 ```

@@ -20,8 +20,8 @@ triggers:
 
 ## 前置条件
 
-- MCP Server 已配置并运行（见 [README 安装步骤](../README.md)）
-- Hermes `config.yaml` 中已添加 `mcp_servers.paddleocr`
+- MCP Server 已安装并配置（见 [README 安装步骤](../README.md)）
+- 你的 Agent/MCP 客户端已添加 `paddleocr` 服务器配置
 
 ## 可用 Tools
 
