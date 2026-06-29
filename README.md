@@ -89,8 +89,8 @@ mcp_servers:
 
 任何支持 MCP stdio 传输的客户端都可以连接：
 
-```bash
-# Claude Desktop (claude_desktop_config.json)
+```json
+// Claude Desktop (claude_desktop_config.json)
 {
   "mcpServers": {
     "paddleocr": {
@@ -100,6 +100,53 @@ mcp_servers:
   }
 }
 ```
+
+## 🤖 Agent Skill
+
+本项目附带一个 **Agent Skill**（[skill/SKILL.md](skill/SKILL.md)），让 AI Agent 知道何时、如何调用 OCR 工具。
+
+### 什么是 Agent Skill？
+
+Skill 是一份结构化文档，告诉 Agent：
+- **什么时候** 该调用 OCR（触发条件）
+- **用哪个 tool**（ocr_image vs parse_document vs smart_ocr）
+- **怎么用**（参数、返回值、错误处理）
+- **决策树**（根据场景自动选择最佳模型）
+
+### 安装到 Hermes
+
+```bash
+# 复制 skill 到 Hermes skills 目录
+cp -r skill/ ~/.hermes/skills/paddleocr-mcp/
+
+# 或者创建符号链接（推荐，方便更新）
+ln -s /path/to/paddleocr-mcp/skill ~/.hermes/skills/paddleocr-mcp
+```
+
+安装后 Agent 在以下情况会自动加载此 Skill：
+- 用户发送图片并要求提取文字
+- 用户要求解析 PDF 或文档
+- 任何涉及 OCR 的任务
+
+### Skill 触发条件
+
+Agent 会在以下关键词出现时加载 Skill：
+
+```
+提取文字、OCR、图片文字、文档解析、PDF 解析、
+截图识别、表格提取、识别图片、读取图片
+```
+
+### 不用 Skill 直接用
+
+即使不安装 Skill，只要 MCP Server 已配置，Agent 也能直接调用工具：
+
+```
+用户：帮我看看这张截图写了什么
+Agent：调用 mcp_paddleocr_ocr_image（自动选择）
+```
+
+Skill 的作用是让 Agent **更聪明地选择**和**更好地处理结果**。
 
 ## MCP Tools
 
@@ -179,6 +226,8 @@ python test_mcp.py
 paddleocr-mcp/
 ├── paddleocr_mcp_server.py    # MCP Server 主程序
 ├── pyproject.toml             # 项目配置
+├── skill/
+│   └── SKILL.md               # Agent Skill 文档
 ├── tests/
 │   └── test_tools.py          # 单元测试
 ├── test_quick.py              # 快速功能测试
