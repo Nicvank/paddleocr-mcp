@@ -36,8 +36,8 @@
 
 ```bash
 # 1. 克隆仓库
-git clone https://github.com/Nicvank/paddleocr-mcp-server.git
-cd paddleocr-mcp-server
+git clone https://github.com/Nicvank/paddleocr-mcp.git
+cd paddleocr-mcp
 
 # 2. 安装依赖（使用 uv 推荐）
 uv pip install -e .
@@ -170,7 +170,7 @@ python test_mcp.py
 ## 项目结构
 
 ```
-paddleocr-mcp-server/
+paddleocr-mcp/
 ├── paddleocr_mcp_server.py    # MCP Server 主程序
 ├── pyproject.toml             # 项目配置
 ├── tests/

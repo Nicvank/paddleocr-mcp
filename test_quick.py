@@ -3,12 +3,14 @@
 import asyncio
 import json
 import sys
+from pathlib import Path
 
-# Use the paddleocr venv
-sys.path.insert(0, "[project-root]")
+# Add project root to path (works from any working directory)
+_PROJECT_DIR = Path(__file__).parent
+if str(_PROJECT_DIR) not in sys.path:
+    sys.path.insert(0, str(_PROJECT_DIR))
 
 from paddleocr_mcp_server import _get_ocr, _extract_ocr_text, _preprocess_image, _safe_unlink
-from pathlib import Path
 import time
 
 

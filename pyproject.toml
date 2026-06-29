@@ -41,9 +41,9 @@ dev = [
 paddleocr-mcp = "paddleocr_mcp_server:main"
 
 [project.urls]
-Homepage = "https://github.com/Nicvank/paddleocr-mcp-server"
-Repository = "https://github.com/Nicvank/paddleocr-mcp-server"
-Issues = "https://github.com/Nicvank/paddleocr-mcp-server/issues"
+Homepage = "https://github.com/Nicvank/paddleocr-mcp"
+Repository = "https://github.com/Nicvank/paddleocr-mcp"
+Issues = "https://github.com/Nicvank/paddleocr-mcp/issues"
 
 [build-system]
 requires = ["hatchling"]

@@ -4,15 +4,16 @@ import subprocess
 import json
 import sys
 import time
+from pathlib import Path
 
-PYTHON = "python3"
-SERVER = "[project-root]/paddleocr_mcp_server.py"
+# Auto-detect Python and server path (works from any working directory)
+PYTHON = sys.executable
+SERVER = str(Path(__file__).parent / "paddleocr_mcp_server.py")
 
 
 def send_msg(proc, msg):
     """Send a JSON-RPC message to the MCP server."""
     data = json.dumps(msg)
-    # MCP uses newline-delimited JSON over stdin
     proc.stdin.write(data + "\n")
     proc.stdin.flush()
 
@@ -25,7 +26,10 @@ def read_msg(proc, timeout=30):
         if proc.stdout in select.select([proc.stdout], [], [], 0.5)[0]:
             line = proc.stdout.readline()
             if line.strip():
-                return json.loads(line.strip())
+                try:
+                    return json.loads(line.strip())
+                except json.JSONDecodeError:
+                    pass
     return None
 
 
@@ -97,7 +101,6 @@ def test_mcp_protocol():
             content = resp["result"].get("content", [])
             if content:
                 text = content[0].get("text", "")
-                # Show first 500 chars
                 print(f"   ✅ OCR result ({len(text)} chars):")
                 print(f"      {text[:300]}...")
             else:
