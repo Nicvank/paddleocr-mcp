@@ -104,6 +104,7 @@ async def _get_vl():
                 use_layout_detection=True,
                 use_chart_recognition=True,
                 device=DEVICE,
+                engine="paddle_dynamic",  # VL-1.6 only supports this engine (CPU/GPU universal)
             )
             logger.info("VL-1.6 ready.")
     return _vl_model
