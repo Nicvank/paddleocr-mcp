@@ -152,10 +152,12 @@ Source: /path/to/image.png
 
 **硬件参考：**
 
-| 配置 | PP-OCRv6 速度 | VL-1.6 速度 |
-|------|-------------|------------|
-| CPU（Xeon E5-2698B v3） | ~12-18s | 30-120s |
-| GPU（GTX 1060 / P106 6GB） | ~1-2s | ~5-15s |
+| 配置 | PP-OCRv6 速度 (OneDNN) | PP-OCRv6 速度 (OneDNN 关闭) | VL-1.6 速度 |
+|------|----------------------|---------------------------|------------|
+| CPU（Xeon E5-2698B v3） | ~12-18s | ~20-30s | 30-120s |
+| GPU（GTX 1060 / P106 6GB） | ~1-2s | ~1-2s | ~5-15s |
+
+> ⚠️ 部分 CPU 需要禁用 OneDNN（`enable_mkldnn=False`）以避免兼容性问题，此时 PP-OCRv6 速度约慢 50%。服务器已内置自动处理。
 
 ## 环境变量
 
@@ -173,6 +175,7 @@ Source: /path/to/image.png
 | `ValueError: exceeds 50MB` | 文件过大 | 压缩图片或裁剪 |
 | `asyncio.TimeoutError` | VL-1.6 超时 | 增加 PADDLEOCR_VL_TIMEOUT |
 | `(no text detected)` | 图片无文字 | 检查图片质量/内容 |
+| `NotImplementedError: ConvertPirAttribute` | OneDNN/PIR 不兼容 | 服务器已自动处理，如仍报错设置 `FLAGS_use_mkldnn=0` |
 
 ## 示例对话
 

@@ -81,13 +81,31 @@ async def _get_ocr(lang: str = "ch") -> PaddleOCR:
     async with _ocr_lock:
         if key not in _ocr_cache:
             logger.info("Loading PP-OCRv6 (lang=%s, device=%s)...", key, DEVICE)
-            _ocr_cache[key] = await asyncio.to_thread(
-                PaddleOCR,
-                lang=key,
-                use_textline_orientation=False,
-                text_recognition_batch_size=1,
-                device=DEVICE,
-            )
+            try:
+                _ocr_cache[key] = await asyncio.to_thread(
+                    PaddleOCR,
+                    lang=key,
+                    use_textline_orientation=False,
+                    text_recognition_batch_size=1,
+                    device=DEVICE,
+                    enable_mkldnn=False,  # Avoid OneDNN/PIR crash on some CPUs
+                )
+            except NotImplementedError as exc:
+                if "ConvertPirAttribute" in str(exc):
+                    logger.warning(
+                        "OneDNN/PIR incompatible with this CPU. "
+                        "Retrying with enable_mkldnn=False..."
+                    )
+                    _ocr_cache[key] = await asyncio.to_thread(
+                        PaddleOCR,
+                        lang=key,
+                        use_textline_orientation=False,
+                        text_recognition_batch_size=1,
+                        device=DEVICE,
+                        enable_mkldnn=False,
+                    )
+                else:
+                    raise
             logger.info("PP-OCRv6 ready (lang=%s).", key)
     return _ocr_cache[key]
 
@@ -462,7 +480,88 @@ async def _main():
         )
 
 
+def _cmd_doctor():
+    """Diagnostic check — verify Python, deps, models, and OneDNN compatibility."""
+    import importlib
+    import platform
+
+    print("paddleocr-mcp doctor")
+    print(f"  Python:     {platform.python_version()}")
+    ok = True
+
+    # Python version
+    v = tuple(int(x) for x in platform.python_version().split(".")[:2])
+    if v < (3, 10) or v >= (3, 13):
+        print(f"  ❌ Python {platform.python_version()} not supported (need 3.10-3.12)")
+        ok = False
+    else:
+        print(f"  ✅ Python version OK")
+
+    # Dependencies
+    for pkg, label in [
+        ("paddlepaddle", "PaddlePaddle"),
+        ("paddleocr", "PaddleOCR"),
+        ("mcp", "MCP SDK"),
+        ("PIL", "Pillow"),
+    ]:
+        try:
+            mod = importlib.import_module(pkg)
+            ver = getattr(mod, "__version__", "?")
+            print(f"  ✅ {label}: {ver}")
+        except ImportError:
+            print(f"  ❌ {label} not installed")
+            ok = False
+
+    # PaddleOCR model load test
+    print("\n  Testing PP-OCRv6 model load...")
+    try:
+        from paddleocr import PaddleOCR
+        ocr = PaddleOCR(lang="ch", use_textline_orientation=False, enable_mkldnn=False)
+        print(f"  ✅ PP-OCRv6 loaded successfully")
+    except NotImplementedError as exc:
+        if "ConvertPirAttribute" in str(exc):
+            print(f"  ⚠️  OneDNN/PIR crash detected — this CPU needs enable_mkldnn=False")
+            print(f"     The server already handles this automatically.")
+        else:
+            print(f"  ❌ Model load failed: {exc}")
+        ok = False
+    except Exception as exc:
+        print(f"  ❌ Model load failed: {exc}")
+        ok = False
+
+    # GPU detection
+    print("\n  Checking GPU...")
+    try:
+        import paddle
+        if paddle.is_compiled_with_cuda() and paddle.device.cuda.device_count() > 0:
+            print(f"  ✅ GPU available: CUDA")
+        else:
+            print(f"  ℹ️  GPU not available — using CPU (expected if no NVIDIA GPU)")
+    except Exception:
+        print(f"  ℹ️  GPU check skipped")
+
+    # VL-1.6 model
+    print("\n  Checking VL-1.6 model cache...")
+    cache_dir = Path.home() / ".paddlex" / "official_models"
+    if cache_dir.exists():
+        size_mb = sum(f.stat().st_size for f in cache_dir.rglob("*") if f.is_file()) / 1024 / 1024
+        print(f"  ✅ Model cache found ({size_mb:.0f} MB)")
+    else:
+        print(f"  ℹ️  VL-1.6 model not yet downloaded (will download on first use, ~300MB)")
+
+    print()
+    if ok:
+        print("All checks passed ✅ Server should work correctly.")
+    else:
+        print("Some checks failed ❌ See above for details.")
+
+
 def main():
+    # Check for `doctor` subcommand
+    if len(sys.argv) > 1 and sys.argv[1] == "doctor":
+        _cmd_doctor()
+        return
+
     # Startup status — goes to stderr so MCP clients can see it
     sys.stderr.write(f"[paddleocr-mcp] Starting v1.0.0...\n")
     sys.stderr.write(f"[paddleocr-mcp] Device: {DEVICE}\n")

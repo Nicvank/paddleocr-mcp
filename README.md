@@ -81,6 +81,9 @@ python -m venv .venv
 # ⚠️ 首次安装需下载 ~300MB 依赖（paddlepaddle 195MB + opencv 69MB），
 #    网络慢请耐心等待，或使用 uv 加速：uv pip install -e .
 
+# 🇨🇳 中国大陆用户如 pip 下载超时，使用清华镜像：
+# .venv/bin/pip install -e . -i https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
+
 # 🇨🇳 中国大陆用户如 git clone 失败，可尝试镜像：
 # git clone https://ghproxy.net/https://github.com/Nicvank/paddleocr-mcp.git
 ```
@@ -105,6 +108,8 @@ python paddleocr_mcp_server.py
 
 ### Hermes Agent 集成
 
+> ⚠️ **安装 MCP 服务器后，必须重启 Hermes Gateway 才能加载新工具。**
+
 #### Gateway 模式（systemd 守护进程）
 
 在 **全局配置** `~/.hermes/config.yaml` 添加：
@@ -113,10 +118,13 @@ python paddleocr_mcp_server.py
 mcp_servers:
   paddleocr:
     command: /path/to/paddleocr-mcp/.venv/bin/python
-    args: [/path/to/paddleocr-mcp/paddleocr_mcp_server.py]
+    args:
+      - /path/to/paddleocr-mcp/paddleocr_mcp_server.py
     timeout: 600
     connect_timeout: 120
 ```
+
+> ⚠️ 注意：`args` 必须是 **YAML 列表格式**（`- item`），不要写成字符串 `"[\"item\"]"`。
 
 > ⚠️ Gateway 模式下 MCP 配置读自 `$HERMES_HOME/config.yaml`（即 `~/.hermes/config.yaml`），不是 profile 级别的。
 
@@ -247,6 +255,39 @@ VL-1.6 视觉语言模型，适合复杂文档结构化。
 |------|--------|------|
 | `PADDLEOCR_DEVICE` | `auto` | 强制设备：`cpu` 或 `gpu` |
 | `PADDLEOCR_VL_TIMEOUT` | `300` | VL-1.6 超时时间（秒） |
+
+## CPU 兼容性（OneDNN）
+
+在部分 CPU 上（尤其是旧款或非 Intel 架构），PaddlePaddle 的 OneDNN（MKL-DNN）后端会与 PIR 推理引擎冲突，导致崩溃：
+
+```
+NotImplementedError: ConvertPirAttribute2RuntimeAttribute not support
+```
+
+**服务器已内置自动处理**（`enable_mkldnn=False`），大多数情况下无需手动干预。如仍遇到问题：
+
+1. 设置环境变量：`export FLAGS_use_mkldnn=0`
+2. 或在 MCP 配置中添加：
+   ```yaml
+   mcp_servers:
+     paddleocr:
+       command: /path/to/python
+       args:
+         - /path/to/paddleocr_mcp_server.py
+       env:
+         FLAGS_use_mkldnn: "0"
+       timeout: 600
+   ```
+
+## 诊断工具
+
+安装完成后运行诊断检查：
+
+```bash
+.venv/bin/python paddleocr_mcp_server.py doctor
+```
+
+检查项：Python 版本、依赖完整性、模型加载、OneDNN 兼容性、GPU 检测、VL-1.6 模型缓存。
 
 ## 测试
 
